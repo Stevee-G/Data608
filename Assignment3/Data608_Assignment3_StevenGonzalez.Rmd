@@ -25,6 +25,7 @@ library(dplyr)
 url <- "https://data.cdc.gov/api/v3/views/fpsi-y8tj/query.json"
 key <- "MCuyIrLZPnjyG1E7PNCJgbJXZ"
 url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment3/firearm_laws.csv"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment3/law_rankings.csv"
 
 response <- GET(
   url = url,
@@ -35,8 +36,11 @@ stats <- fromJSON(content(response, "text"))
 
 laws <- read_csv(url1)
 
+ranks <- read_csv(url2)
+
 glimpse(stats)
 glimpse(laws)
+glimpse(ranks)
 ```
 
 ## Data Wrangling
