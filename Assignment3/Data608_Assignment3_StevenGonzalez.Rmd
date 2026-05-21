@@ -24,17 +24,19 @@ library(dplyr)
 ```{r message = FALSE, warning = FALSE}
 url <- "https://data.cdc.gov/api/v3/views/fpsi-y8tj/query.json"
 key <- "MCuyIrLZPnjyG1E7PNCJgbJXZ"
+url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment3/firearm_laws.csv"
 
 response <- GET(
   url = url,
   add_headers(`X-App-Token` = key)
 )
-
 status_code(response)
+stats <- fromJSON(content(response, "text"))
 
-cdc_data <- fromJSON(content(response, "text"))
+laws <- read_csv(url1)
 
-glimpse(cdc_data)
+glimpse(stats)
+glimpse(laws)
 ```
 
 ## Data Wrangling
@@ -106,24 +108,8 @@ ggplot(data = data, aes(x = measure, y = value, fill = measure)) +
 ```
 
 ## Sources
-```{r message = FALSE, warning = FALSE}
-t_hat <- data %>% 
-  specify(value ~ measure) %>% 
-  hypothesize(null = "independence") %>%
-  calculate(stat = "t", order = c("Inflation Rate", "Wage Growth"))
-t_hat
+CDC FA Mortality:
+(https://data.cdc.gov/Injury-Violence/Mapping-Injury-Overdose-and-Violence-State/fpsi-y8tj/about_data)
 
-null_dist <- data %>%
-  specify(value ~ measure) %>%
-  hypothesize(null = "independence") %>%
-  generate(reps = 1000, type = "permute") %>%
-  calculate(stat = "t", order = c("Inflation Rate", "Wage Growth"))
-
-visualize(null_dist, method = "both") +
-  shade_p_value(obs_stat = t_hat, direction = "two-sided") +
-  labs(x = "t Stat", y = "Density") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-null_dist %>%
-  get_p_value(obs_stat = t_hat, direction = "two-sided")
-```
+Rand FA Laws:
+(https://www.rand.org/research/gun-policy/law-navigator.html#minimum-age-for-possession)

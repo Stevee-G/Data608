@@ -1,0 +1,124 @@
+label,law_class,law_class_subtype,handguns_or_long_guns,points
+castle doctrine laws,castle doctrine,stand your ground,handgun and long gun,1
+castle doctrine laws,castle doctrine,expanded 1,handgun and long gun,2
+castle doctrine laws,castle doctrine,expanded 2,handgun and long gun,3
+castle doctrine laws,castle doctrine,traditional,handgun and long gun,4
+child-access prevention laws or safe-storage laws,child access laws,"intentional, reckless, or knowing provision",handgun,1
+child-access prevention laws or safe-storage laws,child access laws,"intentional, reckless, or knowing provision",handgun and long gun,1
+child-access prevention laws or safe-storage laws,child access laws,negligent storage,handgun and long gun,2
+child-access prevention laws or safe-storage laws,child access laws,safe storage,handgun and long gun,3
+concealed carry laws,carrying a concealed weapon (ccw),shall issue (permit not required),handgun,1
+concealed carry laws,carrying a concealed weapon (ccw),shall issue,handgun,2
+concealed carry laws,carrying a concealed weapon (ccw),may issue,handgun,3
+concealed carry laws,carrying a concealed weapon (ccw),prohibited,handgun,4
+dealer licensure,dealer license,state license requirement,handgun,1
+dealer licensure,dealer license,state license requirement,handgun and long gun,1
+dealer licensure,dealer license,state license requirement,long gun,1
+domestic violence restraining orders,prohibited possessor,dvro,handgun and long gun,1
+domestic violence restraining orders,prohibited possessor,dvro : expanded,handgun and long gun,2
+domestic violence restraining orders,prohibited possessor,dvro ex parte,handgun and long gun,3
+domestic violence restraining orders,prohibited possessor,dvro ex parte : expanded,handgun and long gun,4
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility : voluntary,handgun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility,handgun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility : outpatient,handgun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility,handgun and long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility : outpatient,handgun and long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility : voluntary,handgun and long gun,1
+expanded mental health prohibitions,prohibited possessor,"mental health : diagnosed with significant behavioral, emotional or mental disorder",handgun and long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : determined by police to be mentally incompetent/incapacitated/disabled,handgun and long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility,long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : committed to mh facility : outpatient,long gun,1
+expanded mental health prohibitions,prohibited possessor,mental health : adjudicated as mentally incompetent//incapacitated/disabled,handgun,2
+expanded mental health prohibitions,prohibited possessor,mental health : adjudicated as mentally incompetent//incapacitated/disabled,handgun and long gun,2
+extreme-risk protection orders,prohibited possessor,erpo,handgun and long gun,1
+extreme-risk protection orders,prohibited possessor,erpo : ex parte,handgun and long gun,2
+extreme-risk protection orders,prohibited possessor,erpo : ex parte expanded,handgun and long gun,3
+extreme-risk protection orders,prohibited possessor,erpo : expanded,handgun and long gun,4
+firearm removal,firearm removal at scene of domestic violence,authorized,handgun and long gun,1
+firearm removal,firearm removal at scene of domestic violence,required,handgun and long gun,2
+firearm safety training requirements,safety training required,to purchase : assault rifles,long gun,1
+firearm safety training requirements,safety training required,to purchase,handgun,2
+firearm safety training requirements,safety training required,to purchase,handgun and long gun,2
+firearm safety training requirements,safety training required,to purchase,long gun,2
+firearm safety training requirements,safety training required,to carry,handgun,3
+firearms in college/university,firearms in college/university,public : CCW allowed,handgun,1
+firearms in college/university,firearms in college/university,public and private : CCW allowed,handgun,1
+firearms in college/university,firearms in college/university,public : CCW allowed (open areas),handgun,1
+firearms in college/university,firearms in college/university,public and private : CCW not allowed,handgun,2
+firearms in college/university,firearms in college/university,public : CCW not allowed,handgun,2
+firearms in college/university,firearms in college/university,private : possession prohibited,handgun,3
+firearms in college/university,firearms in college/university,public : possession prohibited,handgun,3
+firearms in college/university,firearms in college/university,public and private : possession prohibited,handgun,3
+firearms in college/university,firearms in college/university,public and private : possession prohibited,handgun and long gun,3
+firearms in college/university,firearms in college/university,private : possession prohibited,long gun,3
+firearms in college/university,firearms in college/university,public : possession prohibited,long gun,3
+firearms in college/university,firearms in college/university,public and private : possession prohibited,long gun,3
+gun trafficking laws,gun trafficking,straw purchase - buyer liability,handgun and long gun,1
+gun trafficking laws,gun trafficking,straw purchase - buyer and seller liability,handgun,2
+gun trafficking laws,gun trafficking,straw purchase - buyer and seller liability,handgun and long gun,2
+laws allowing armed staff in K–12 schools,firearms in K-12 educational settings,school personnel other than peace officers,handgun and long gun,1
+laws banning high-capacity magazines,firearm sales restrictions,ban on high capacity magazines – federal,handgun and long gun,1
+laws banning high-capacity magazines,firearm sales restrictions,ban on high capacity magazines,handgun and long gun,2
+laws banning the sale of assault weapons,firearm sales restrictions,assault weapons ban — Federal,handgun and long gun,1
+laws banning the sale of assault weapons,firearm sales restrictions,assault weapons ban,handgun,2
+laws banning the sale of assault weapons,firearm sales restrictions,assault weapons ban,handgun and long gun,2
+laws banning the sale of assault weapons,firearm sales restrictions,assault weapons ban,long gun,2
+lost or stolen firearm reporting requirements,required reporting of lost or stolen firearms,tracing firearms used in crimes,handgun and long gun,1
+lost or stolen firearm reporting requirements,required reporting of lost or stolen firearms,lost and stolen firearms,handgun and long gun,2
+minimum age for possession,minimum age,minimum age possession - federal,handgun,1
+minimum age for possession,minimum age,youth possession,handgun,2
+minimum age for possession,minimum age,youth possession,long gun,2
+minimum age for purchase,minimum age,minimum age purchase - federal,handgun,1
+minimum age for purchase,minimum age,minimum age purchase - federal,long gun,1
+minimum age for purchase,minimum age,purchase and sale,handgun,2
+minimum age for purchase,minimum age,purchase and sale,long gun,2
+open carry,open carry,license required,handgun,1
+open carry,open carry,license required,long gun,1
+open carry,open carry,limited,handgun,2
+open carry,open carry,limited,long gun,2
+open carry,open carry,limited : prohibited : loaded,handgun,3
+open carry,open carry,limited : prohibited : loaded,long gun,3
+open carry,open carry,prohibited,handgun,4
+open carry,open carry,prohibited,long gun,4
+permit-to-purchase,permit to purchase,maximum waiting period,handgun,1
+permit-to-purchase,permit to purchase,maximum waiting period,long gun,1
+permit-to-purchase,permit to purchase,required,handgun,2
+permit-to-purchase,permit to purchase,required,long gun,2
+preempt local gun laws,local laws preempted by state,limited,handgun,1
+preempt local gun laws,local laws preempted by state,limited,handgun and long gun,1
+preempt local gun laws,local laws preempted by state,comprehensive,handgun and long gun,2
+preempt local gun laws,local laws preempted by state,comprehensive - punitive,handgun and long gun,3
+prohibitions associated with violent misdemeanors,prohibited possessor,violent misdemeanor juvenile,handgun and long gun,1
+prohibitions associated with violent misdemeanors,prohibited possessor,violent misdemeanor limited,handgun,2
+prohibitions associated with violent misdemeanors,prohibited possessor,violent misdemeanor limited,handgun and long gun,2
+prohibitions associated with violent misdemeanors,prohibited possessor,violent misdemeanor,handgun,3
+prohibitions associated with violent misdemeanors,prohibited possessor,violent misdemeanor,handgun and long gun,3
+prohibitions associated with violent misdemeanors,prohibited possessor,not RAND violent misdemeanor,handgun and long gun,3
+registration laws,registration,required,handgun,1
+registration laws,registration,required,long gun,1
+sales restrictions,firearm sales restrictions,one gun per month,handgun,1
+sales restrictions,firearm sales restrictions,handgun ban,handgun,1
+sales restrictions,firearm sales restrictions,saturday night special ban,handgun,2
+universal background checks,background checks,sales from dealer : federal,handgun,1
+universal background checks,background checks,sales from dealer,handgun,1
+universal background checks,background checks,extra time,handgun,1
+universal background checks,background checks,sales from dealer : federal,handgun and long gun,1
+universal background checks,background checks,sales from dealer,handgun and long gun,1
+universal background checks,background checks,extra time,handgun and long gun,1
+universal background checks,background checks,sales from dealer,long gun,1
+universal background checks,background checks,extra time,long gun,1
+universal background checks,background checks,private sales : point of sale,handgun,2
+universal background checks,background checks,permit to purchase,handgun,2
+universal background checks,background checks,private sales : point of sale (limited),handgun and long gun,2
+universal background checks,background checks,private sales : point of sale,handgun and long gun,2
+universal background checks,background checks,permit to purchase,handgun and long gun,2
+universal background checks,background checks,private sales : point of sale,long gun,2
+universal background checks,background checks,permit to purchase,long gun,2
+untraceable firearm laws,untraceable firearms,prohibited,handgun,1
+untraceable firearm laws,untraceable firearms,prohibited,handgun and long gun,1
+waiting period,waiting period,federal,handgun,1
+waiting period,waiting period,general,handgun,2
+waiting period,waiting period,general,handgun and long gun,2
+waiting period,waiting period,general,long gun,2
+waiting period,waiting period,Waiting Periods: De facto (permit required),handgun,3
+waiting period,waiting period,Waiting Periods: De facto (permit required),long gun,3
