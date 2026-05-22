@@ -45,11 +45,27 @@ glimpse(ranks)
 
 ## Data Wrangling
 ```{r message = FALSE, warning = FALSE}
-cpi_unnested <- cpi_data %>%
-  unnest_longer(calculations) %>%
-  unnest_wider(calculations) %>%
-  unnest_longer(pct_changes) %>%
-  unnest_wider(pct_changes)
+stats_trim <- stats %>% 
+  filter(period == "2024" & (intent == "FA_Deaths" |
+                              intent == "FA_Homicide" |
+                              intent == "FA_Suicide")) %>% 
+  mutate(count_sup = as.integer(count_sup),
+         rate = as.double(rate)) %>% 
+  select(name, intent, count_sup, rate)
+glimpse(stats_trim)
+
+laws_trim <- laws %>% 
+  arrange(desc(law_id)) %>% 
+  mutate(bridge = paste(law_class,
+                        law_class_subtype,
+                        handguns_or_long_guns)) %>%
+  distinct(paste(state, bridge), .keep_all = TRUE) %>% 
+  arrange(law_id) %>% 
+  select(state, bridge)
+glimpse(laws_trim)
+
+#state_rank <- 
+
 
 cpi_trim <- cpi_unnested %>%
   mutate(date = as.Date(yearmonth(paste(
