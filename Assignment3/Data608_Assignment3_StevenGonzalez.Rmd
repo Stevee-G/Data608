@@ -18,6 +18,8 @@ library(tidyverse)
 library(httr)
 library(jsonlite)
 library(dplyr)
+library(ggplot2)
+library(usmap)
 ```
 
 ## Data Import
@@ -64,67 +66,49 @@ laws_trim <- laws %>%
   select(state, bridge)
 glimpse(laws_trim)
 
-#state_rank <- 
+ranks$bridge <- paste(ranks$law_class,
+                      ranks$law_class_subtype,
+                      ranks$handguns_or_long_guns)
+glimpse(ranks)
 
+state_laws <- full_join(laws_trim, ranks,
+                        join_by(bridge == bridge),
+                        relationship = "many-to-one") %>% 
+  select(state, category, label, points) %>% 
+  group_by(state, category, label) %>% 
+  summarize(
+    points = sum(points)
+  ) %>% 
+  drop_na()
+glimpse(state_laws)
 
-cpi_trim <- cpi_unnested %>%
-  mutate(date = as.Date(yearmonth(paste(
-    year, periodName, sep = " ")), format = "%Y %b")) %>%
-  rename(inflation_rate = "12") %>%
-  select(date, inflation_rate) %>%
-  arrange(date)
+state_rank <- state_laws %>% 
+  group_by(state) %>% 
+  summarize(
+    total = sum(points)
+  ) %>% 
+  mutate(percentile = percent_rank(total),
+         bin = cut(percentile,
+                   breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
+                   labels = c("Most Lax", "Somewhat Lax",
+                              "Somewhere In Between",
+                              "Somewhat Strict", "Most Strict"),
+                   include.lowest = TRUE))
+glimpse(state_rank)
 
-cpi_trim$inflation_rate <- as.numeric(cpi_trim$inflation_rate)
-glimpse(cpi_trim)
-
-wg_dated <- wg_data %>% 
-  mutate(date = as.Date(Monthyear, format = "%m/%d/%Y")) %>%
-  rename(wage_growth = Overall) %>% 
-  select(date, wage_growth)
-
-wg_trim <- wg_dated %>% 
-  filter(date >= "2004-01-01" & date <= "2023-12-01")
-
-wg_trim$wage_growth <- as.numeric(wg_trim$wage_growth)
-glimpse(wg_trim)
-
-combined_data <- inner_join(cpi_trim, wg_trim, by = join_by(date))
-
-data <- combined_data %>%
-  rename("Inflation Rate" = inflation_rate) %>%
-  rename("Wage Growth" = wage_growth) %>%
-  pivot_longer(
-    cols = c("Inflation Rate", "Wage Growth"),
-    names_to = "measure",
-    values_to = "value"
-  )
-glimpse(data)
+all <- full_join(state_laws,
+                 full_join(stats_trim, state_rank,
+                           join_by(name == state),
+                           relationship = "many-to-one"),
+                 join_by(state == name),
+                 relationship = "many-to-many") %>% 
+  select(-percentile)
+glimpse(all)
 ```
 
 ## Data Visualizations
 ```{r message = FALSE, warning = FALSE}
-summary(data$value)
 
-describe(data$value)
-
-description <- describeBy(data$value, group = data$measure, mat = TRUE, skew = FALSE)
-names(description)[2] <- "measure"
-description$Var <- description$sd^2
-description$contrast <- (description$mean - mean(description$mean))
-description
-
-ggplot(data = data, aes(x = date, y = value, color = measure, shape = measure)) +
-  geom_line() +
-  geom_point() +
-  labs(title = "Inflation Rate and Wage Growth vs Time",
-       x = "Date", y = "% Change", color = NULL, shape = NULL) +
-  theme(plot.title = element_text(hjust = 0.5))
-
-ggplot(data = data, aes(x = measure, y = value, fill = measure)) +
-  geom_boxplot() +
-  labs(title = "Average Change by Inflation Rate and Wage Growth",
-       x = "Measure", y = "% Change", fill = NULL) +
-  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ## Sources
