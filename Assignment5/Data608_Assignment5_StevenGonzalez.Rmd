@@ -1,0 +1,179 @@
+---
+title: "DATA608 Assignment 5"
+author: "Steven Gonzalez"
+output: html_document
+---
+
+## Prompt
+Historic data indicates that the occurrence and intensity of cyclonic storms (Hurricanes, Typhoons and Tornadoes) increases with the increased earth temperature. For this assignment you will need to tell this story to a non-technical audience (eg: a high-school earth science class).
+
+## R Packages
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(usmap)
+library(tinytex)
+```
+
+## Data Import
+```{r message = FALSE, warning = FALSE}
+url <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-02272026.txt"
+url1 <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-nepac-1949-2025-02272026.txt"
+url2 <- "https://data.giss.nasa.gov/gistemp/graphs/graph_data/Global_Mean_Estimates_based_on_Land_and_Ocean_Data/graph.txt"
+
+out_file <- "hurdat2_atlantic.txt"
+download.file(url, out_file, mode = "wb")
+raw <- readLines(out_file)
+
+parsed <- list()
+i <- 1
+while (i <= length(raw)) {
+  header <- trimws(strsplit(raw[i], ",")[[1]])
+  track_id <- header[1]
+  track_name <- header[2]
+  rows <- as.numeric(header[3])
+
+  body <- raw[(i + 1):(i + rows)]
+  body <- strsplit(body, ",")
+  body <- lapply(body, trimws)
+  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
+  body <- do.call(rbind, body)
+
+  colnames(body) <- c(
+    "date","time","record","status","lat","lon","max_speed","min_press",
+    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
+    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
+    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
+  )
+
+  body <- as_tibble(body)
+  body$lat <- ifelse(grepl("N", body$lat),
+                     gsub("N","", body$lat),
+                     paste0("-", gsub("S","", body$lat)))
+  body$lon <- ifelse(grepl("E", body$lon),
+                     gsub("E","", body$lon),
+                     paste0("-", gsub("W","", body$lon)))
+
+  parsed[[length(parsed) + 1]] <-
+    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
+
+  i <- i + rows + 1
+}
+
+atlantic_df <- bind_rows(parsed)
+head(atlantic_df)
+
+out_file1 <- "hurdat2_pacific.txt"
+download.file(url1, out_file1, mode = "wb")
+raw1 <- readLines(out_file1)
+
+parsed1 <- list()
+j <- 1
+while (j <= length(raw1)) {
+  header <- trimws(strsplit(raw1[j], ",")[[1]])
+  track_id <- header[1]
+  track_name <- header[2]
+  rows <- as.numeric(header[3])
+
+  body <- raw1[(j + 1):(j + rows)]
+  body <- strsplit(body, ",")
+  body <- lapply(body, trimws)
+  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
+  body <- do.call(rbind, body)
+
+  colnames(body) <- c(
+    "date","time","record","status","lat","lon","max_speed","min_press",
+    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
+    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
+    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
+  )
+
+  body <- as_tibble(body)
+  body$lat <- ifelse(grepl("N", body$lat),
+                     gsub("N","", body$lat),
+                     paste0("-", gsub("S","", body$lat)))
+  body$lon <- ifelse(grepl("E", body$lon),
+                     gsub("E","", body$lon),
+                     paste0("-", gsub("W","", body$lon)))
+
+  parsed1[[length(parsed1) + 1]] <-
+    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
+
+  j <- j + rows + 1
+}
+
+pacific_df <- bind_rows(parsed1)
+head(pacific_df)
+
+out_file2 <- "nasa_temps.txt"
+download.file(url2, out_file2, mode = "wb")
+temp_df <- readLines(out_file2)
+temp_df <- read_csv(url2)
+glimpse(temp_df)
+```
+
+## Data Wrangling
+```{r message = FALSE, warning = FALSE}
+
+```
+
+## Data Visualizations
+```{r message = FALSE, warning = FALSE}
+plot_usmap(data = state, values = "mean", color = "black") +
+  scale_fill_continuous(low = "whitesmoke",
+                        high = "darkblue",
+                        name = "Average Salary",
+                        label = scales::comma) +
+  labs(title = "Heatmap: Data Practitioner Salary Across the States") +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r message = FALSE, warning = FALSE, fig.dim = c(5,10)}
+ggplot(state_long, aes(x = value, y = reorder(state, value, FUN = max))) +
+  geom_line() +
+  geom_point(aes(color = variable), size = 2) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Dumbbell Plot: Salary Range by State",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r message = FALSE, warning = FALSE}
+ggplot(prof_long, aes(x = value, y = reorder(OCC_TITLE, value, FUN = max))) +
+  geom_line() +
+  geom_point(aes(color = variable), size = 2) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Dumbbell Plot: Salary Range by Profession",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r message = FALSE, warning = FALSE, fig.dim = c(10,6)}
+ggplot(field_long, aes(x = value, y = reorder(NAICS_TITLE, value, FUN = max))) +
+  geom_line() +
+  geom_point(aes(color = variable), size = 2) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  labs(title = "Dumbbell Plot: Salary Range by Industry",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Sources
+Storm Data:
+
+https://www.nhc.noaa.gov/data/#hurdat
+
+Climate Data:
+
+https://science.nasa.gov/earth/explore/earth-indicators/global-temperature/
