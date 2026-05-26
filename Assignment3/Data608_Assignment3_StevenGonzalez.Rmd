@@ -19,6 +19,7 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 library(ggplot2)
+library(reshape2)
 library(usmap)
 ```
 
@@ -48,12 +49,23 @@ glimpse(ranks)
 ## Data Wrangling
 ```{r message = FALSE, warning = FALSE}
 stats_trim <- stats %>% 
-  filter(period == "2024" & (intent == "FA_Deaths" |
-                              intent == "FA_Homicide" |
-                              intent == "FA_Suicide")) %>% 
+  filter(period == "2024" & intent == "FA_Deaths") %>% 
   mutate(count_sup = as.integer(count_sup),
-         rate = as.double(rate)) %>% 
-  select(name, intent, count_sup, rate)
+         rate = as.double(rate),
+         percentile = percent_rank(rate),
+         d_bin = cut(percentile,
+                   breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
+                   labels = c("Lowest Mortality", "Low Mortality",
+                              "Somewhere In Between",
+                              "High Mortality", "Highest Mortality"),
+                   include.lowest = TRUE),
+         d_level = case_when(
+           d_bin == "Lowest Mortality" ~ 1,
+           d_bin == "Low Mortality" ~ 2,
+           d_bin == "Somewhere In Between" ~ 3,
+           d_bin == "High Mortality" ~ 4,
+           d_bin == "Highest Mortality" ~ 5)) %>% 
+  select(name, intent, count_sup, rate, d_bin, d_level)
 glimpse(stats_trim)
 
 laws_trim <- laws %>% 
@@ -88,12 +100,18 @@ state_rank <- state_laws %>%
     total = sum(points)
   ) %>% 
   mutate(percentile = percent_rank(total),
-         bin = cut(percentile,
+         s_bin = cut(percentile,
                    breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
                    labels = c("Most Lax", "Somewhat Lax",
                               "Somewhere In Between",
                               "Somewhat Strict", "Most Strict"),
-                   include.lowest = TRUE))
+                   include.lowest = TRUE),
+         s_level = case_when(
+           s_bin == "Most Lax" ~ 1,
+           s_bin == "Somewhat Lax" ~ 2,
+           s_bin == "Somewhere In Between" ~ 3,
+           s_bin == "Somewhat Strict" ~ 4,
+           s_bin == "Most Strict" ~ 5))
 glimpse(state_rank)
 
 all <- full_join(state_laws,
@@ -108,7 +126,47 @@ glimpse(all)
 
 ## Data Visualizations
 ```{r message = FALSE, warning = FALSE}
+plot_usmap(data = all, values = "d_level", color = "black") +
+  scale_fill_continuous(low = "whitesmoke",
+                        high = "red",
+                        name = "Mortality Rate",
+                        label = scales::comma) +
+  labs(title = "Heatmap: USA Firearm Mortality") +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
 
+plot_usmap(data = all, values = "s_level", color = "black") +
+  scale_fill_continuous(low = "whitesmoke",
+                        high = "blue",
+                        name = "Law Strictness",
+                        label = scales::comma) +
+  labs(title = "Heatmap: USA Firearm Laws") +
+  theme(legend.position = "left") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+count_data <- all %>%
+  ungroup() %>%  
+  count(d_bin, s_bin, name = "count")
+
+ggplot(count_data, aes(x = s_bin, y = d_bin)) +
+  geom_tile(aes(fill = count), color = "white", linewidth = 0.5) +
+  scale_fill_gradient(low = "whitesmoke", high = "darkviolet") +
+  labs(title = "Heatmap: Law Strictness vs Mortality",
+       x = "",
+       y = "",
+       fill = "Count") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(all, aes(x=total, y=rate)) +
+  geom_point() +
+  labs(title = "Scatterplot: Firearm Laws vs Mortality Rate",
+       x = "Relative Law Value",
+       y = "Relative Mortality Rate") +
+  geom_smooth(color = "darkviolet") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ## Sources
