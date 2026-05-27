@@ -1,0 +1,24 @@
+Year,Category,Subcategory,Total,"Food-secure households-1,000",Food-secure households-percent,"Food-insecure households-1,000",Food-insecure households-percent," Households with food-insecure children-1,000 ",Households with food-insecure children-percent,"Households with very low food security among children-1,000",Households with very low food security among children-percent
+2024,All households with children,,36599,29860,81.6,6739,18.4,3313,9.1,318,0.9
+2024,Household composition,With children < 6 years,14767,12133,82.2,2634,17.8,1196,8.1,104,0.7
+2024,Household composition,Married-couple families,24051,21429,89.1,2622,10.9,1252,5.2,84,0.3
+2024,Household composition,"Female head, no spouse",8696,5497,63.2,3199,36.8,1702,19.6,201,2.3
+2024,Household composition,"Male head, no spouse",3391,2583,76.2,808,23.8,312,9.2,22,0.6
+2024,Household composition,Other household with child,462,352,76.2,110,23.8,47,10.2,11,2.4
+2024,Race/ethnicity of households,White non-Hispanic,19867,17062,85.9,2805,14.1,1264,6.4,60,0.3
+2024,Race/ethnicity of households,Black non-Hispanic,4999,3449,69,1550,31,870,17.4,108,2.2
+2024,Race/ethnicity of households,Hispanic,8147,6204,76.2,1943,23.8,949,11.6,127,1.6
+2024,Race/ethnicity of households,Other,3586,3146,87.7,440,12.3,229,6.4,23,0.6
+2024,Household income-to-poverty ratio,Under 1.00,4171,2333,55.9,1838,44.1,1018,24.4,156,3.7
+2024,Household income-to-poverty ratio,Under 1.30,6496,3686,56.7,2810,43.3,1518,23.4,207,3.2
+2024,Household income-to-poverty ratio,Under 1.85,10050,6202,61.7,3848,38.3,2014,20,260,2.6
+2024,Household income-to-poverty ratio,1.85 and over,20532,18518,90.2,2014,9.8,886,4.3,35,0.2
+2024,Household income-to-poverty ratio,Income unknown,6017,5140,85.4,877,14.6,413,6.9,23,0.4
+2024,Inside metropolitan area,,31873,26162,82.1,5711,17.9,2877,9,280,0.9
+2024,Inside metropolitan area,In principal cities,9727,7639,78.5,2088,21.5,1114,11.5,123,1.3
+2024,Inside metropolitan area,Not in principal cities,17586,14741,83.8,2845,16.2,1349,7.7,143,0.8
+2024,Outside metropolitan area,,4726,3699,78.3,1027,21.7,436,9.2,38,0.8
+2024,Census geographic region,Northeast,5904,4864,82.4,1040,17.6,512,8.7,54,0.9
+2024,Census geographic region,Midwest,7482,6090,81.4,1392,18.6,726,9.7,37,0.5
+2024,Census geographic region,South,14456,11602,80.3,2854,19.7,1412,9.8,164,1.1
+2024,Census geographic region,West,8757,7304,83.4,1453,16.6,662,7.6,62,0.7

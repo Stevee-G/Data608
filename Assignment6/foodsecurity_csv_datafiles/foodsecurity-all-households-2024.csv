@@ -1,0 +1,31 @@
+Year,Category,Subcategory,Sub-subcategory,Total,"Food secure-1,000",Food secure-percent,"Food insecure-1,000",Food insecure-percent,"Low food security-1,000",Low food security-percent,"Very low food security-1,000",Very low food security-percent
+2024,All households,,,134062,115722,86.3,18340,13.7,11138,8.3,7202,5.4
+2024,Household composition,With children < 18 years,,36599,29860,81.6,6739,18.4,4738,12.9,2001,5.5
+2024,Household composition,With children < 18 years,With children < 6 years,14767,12133,82.2,2634,17.8,1947,13.2,687,4.7
+2024,Household composition,With children < 18 years,Married-couple families,24051,21429,89.1,2622,10.9,1974,8.2,648,2.7
+2024,Household composition,With children < 18 years,"Female head, no spouse",8696,5497,63.2,3199,36.8,2081,23.9,1118,12.9
+2024,Household composition,With children < 18 years,"Male head, no spouse",3391,2583,76.2,808,23.8,610,18,198,5.8
+2024,Household composition,With children < 18 years,Other household with child,462,352,76.2,110,23.8,72,15.6,38,8.2
+2024,Household composition,With no children < 18 years,,97462,85860,88.1,11602,11.9,6401,6.6,5201,5.3
+2024,Household composition,With no children < 18 years,More than one adult,57140,51778,90.6,5362,9.4,3285,5.7,2077,3.6
+2024,Household composition,With no children < 18 years,Women living alone,21670,18170,83.8,3500,16.2,1725,8,1775,8.2
+2024,Household composition,With no children < 18 years,Men living alone,18653,15913,85.3,2740,14.7,1390,7.5,1350,7.2
+2024,Household composition,With elderly,,44433,40017,90.1,4416,9.9,2831,6.4,1585,3.6
+2024,Household composition,With elderly,Elderly living alone,16829,14925,88.7,1904,11.3,1104,6.6,800,4.8
+2024,Race/ethnicity of households,White non-Hispanic,,84552,76015,89.9,8537,10.1,5071,6,3466,4.1
+2024,Race/ethnicity of households,Black non-Hispanic,,17582,13300,75.6,4282,24.4,2433,13.8,1849,10.5
+2024,Race/ethnicity of households,Hispanic,,20670,16485,79.8,4185,20.2,2859,13.8,1326,6.4
+2024,Race/ethnicity of households,Other,,11257,9919,88.1,1338,11.9,776,6.9,562,5
+2024,Household income-to-poverty ratio,Under 1.00,,11555,6998,60.6,4557,39.4,2526,21.9,2031,17.6
+2024,Household income-to-poverty ratio,Under 1.30,,16751,10341,61.7,6410,38.3,3692,22,2718,16.2
+2024,Household income-to-poverty ratio,Under 1.85,,28066,18847,67.2,9219,32.8,5465,19.5,3754,13.4
+2024,Household income-to-poverty ratio,1.85 and over,,78259,72040,92.1,6219,7.9,3876,5,2343,3
+2024,Household income-to-poverty ratio,Income unknown,,27736,24833,89.5,2903,10.5,1797,6.5,1106,4
+2024,Area of residence,Inside metropolitan area,,115742,100320,86.7,15422,13.3,9363,8.1,6059,5.2
+2024,Area of residence,Inside metropolitan area,In principal cities,37554,31529,84,6025,16,3503,9.3,2522,6.7
+2024,Area of residence,Inside metropolitan area,Not in principal cities,60579,53397,88.1,7182,11.9,4450,7.3,2732,4.5
+2024,Area of residence,Outside metropolitan area,,18320,15402,84.1,2918,15.9,1775,9.7,1143,6.2
+2024,Census geographic region,Northeast,,23305,20459,87.8,2846,12.2,1734,7.4,1112,4.8
+2024,Census geographic region,Midwest,,28326,24550,86.7,3776,13.3,2268,8,1508,5.3
+2024,Census geographic region,South,,52337,44499,85,7838,15,4712,9,3126,6
+2024,Census geographic region,West,,30093,26213,87.1,3880,12.9,2425,8.1,1455,4.8

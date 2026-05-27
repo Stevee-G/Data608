@@ -1,0 +1,258 @@
+---
+title: "DATA608 Assignment 6"
+author: "Steven Gonzalez"
+output: html_document
+---
+
+## Prompt
+The United Nations Food and Agriculture Organization publication, The State of Food Security and Nutrition in the World 2022 (https://www.fao.org/documents/card/en/c/cc0639en) might lead one to the conclusion that it's an elsewhere problem. That the people who are suffering malnutrition and starvation are "elsewhere", not in our backyard. For this assignment you will need to take a closer look here at home (the US).
+
+## R Packages
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(usmap)
+library(tinytex)
+```
+
+## Data Import
+```{r message = FALSE, warning = FALSE}
+url <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-02272026.txt"
+url1 <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-nepac-1949-2025-02272026.txt"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment5/nasa_temps.csv"
+
+out_file <- "hurdat2_atlantic.txt"
+download.file(url, out_file, mode = "wb")
+raw <- readLines(out_file)
+
+parsed <- list()
+i <- 1
+while (i <= length(raw)) {
+  header <- trimws(strsplit(raw[i], ",")[[1]])
+  track_id <- header[1]
+  track_name <- header[2]
+  rows <- as.numeric(header[3])
+
+  body <- raw[(i + 1):(i + rows)]
+  body <- strsplit(body, ",")
+  body <- lapply(body, trimws)
+  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
+  body <- do.call(rbind, body)
+
+  colnames(body) <- c(
+    "date","time","record","status","lat","lon","max_speed","min_press",
+    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
+    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
+    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
+  )
+
+  body <- as_tibble(body)
+  body$lat <- ifelse(grepl("N", body$lat),
+                     gsub("N","", body$lat),
+                     paste0("-", gsub("S","", body$lat)))
+  body$lon <- ifelse(grepl("E", body$lon),
+                     gsub("E","", body$lon),
+                     paste0("-", gsub("W","", body$lon)))
+
+  parsed[[length(parsed) + 1]] <-
+    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
+
+  i <- i + rows + 1
+}
+
+atlantic_df <- bind_rows(parsed)
+head(atlantic_df)
+
+out_file1 <- "hurdat2_pacific.txt"
+download.file(url1, out_file1, mode = "wb")
+raw1 <- readLines(out_file1)
+
+parsed1 <- list()
+j <- 1
+while (j <= length(raw1)) {
+  header <- trimws(strsplit(raw1[j], ",")[[1]])
+  track_id <- header[1]
+  track_name <- header[2]
+  rows <- as.numeric(header[3])
+
+  body <- raw1[(j + 1):(j + rows)]
+  body <- strsplit(body, ",")
+  body <- lapply(body, trimws)
+  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
+  body <- do.call(rbind, body)
+
+  colnames(body) <- c(
+    "date","time","record","status","lat","lon","max_speed","min_press",
+    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
+    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
+    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
+  )
+
+  body <- as_tibble(body)
+  body$lat <- ifelse(grepl("N", body$lat),
+                     gsub("N","", body$lat),
+                     paste0("-", gsub("S","", body$lat)))
+  body$lon <- ifelse(grepl("E", body$lon),
+                     gsub("E","", body$lon),
+                     paste0("-", gsub("W","", body$lon)))
+
+  parsed1[[length(parsed1) + 1]] <-
+    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
+
+  j <- j + rows + 1
+}
+
+pacific_df <- bind_rows(parsed1)
+head(pacific_df)
+
+temp_df <- read_csv(url2)
+glimpse(temp_df)
+```
+
+## Data Wrangling
+```{r message = FALSE, warning = FALSE}
+atl_trim <- atlantic_df %>% 
+  mutate(year = format(as.Date(atlantic_df$date,
+                               format = "%Y%m%d"), "%Y")) %>%
+  arrange(desc(max_speed)) %>% 
+  distinct(track_id, .keep_all = TRUE) %>% 
+  arrange(year, track_id) %>% 
+  select(year, track_id, max_speed, status) %>% 
+  filter(year >= 1950)
+glimpse(atl_trim)
+
+pa_trim <- pacific_df %>% 
+  mutate(year = format(as.Date(pacific_df$date,
+                               format = "%Y%m%d"), "%Y")) %>%
+  arrange(desc(max_speed)) %>% 
+  distinct(track_id, .keep_all = TRUE) %>% 
+  arrange(year, track_id) %>% 
+  select(year, track_id, max_speed, status) %>% 
+  filter(year >= 1950)
+glimpse(pa_trim)
+
+storms <- bind_rows(atl_trim, pa_trim) %>% 
+  mutate(year = as.integer(year),
+         max_speed = as.integer(max_speed)) %>% 
+  arrange(year, track_id)
+glimpse(storms)
+
+temp_trim <- temp_df %>% 
+  mutate(temperature = smoothing) %>% 
+  filter(year >= 1950) %>% 
+  select(year, temperature)
+glimpse(temp_trim)
+
+all <- full_join(storms, temp_trim,
+                        join_by(year == year),
+                        relationship = "many-to-one")
+glimpse(all)
+
+all_trim <- all %>% 
+  group_by(year,temperature) %>% 
+  summarize(
+    n_storms = n(),
+    n_hurricane = sum(status == "HU"),
+    p_hurricane = round(n_hurricane/n_storms,2),
+    avg_speed = round(mean(max_speed),2)
+  )
+glimpse(all_trim)
+```
+
+## Data Visualizations
+```{r message = FALSE, warning = FALSE}
+ggplot(all_trim, aes(x = year, y = n_storms, fill = n_storms)) +
+  geom_col() +
+  scale_fill_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
+                         midpoint=median(all_trim$n_storms)) +
+  labs(title = "Bar Plot: Storm Activity Since 1950",
+       x = "Year",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = n_hurricane, fill = n_hurricane)) +
+  geom_col() +
+  scale_fill_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
+                         midpoint=median(all_trim$n_hurricane)) +
+  labs(title = "Bar Plot: Hurricane Activity",
+       x = "Year",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = p_hurricane, color = p_hurricane)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
+                         midpoint=median(all_trim$p_hurricane)) +
+  labs(title = "Line Plot: Proportion of Hurricanes per Storm Season",
+       x = "Year",
+       y = "Proportion") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = avg_speed, color = avg_speed)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
+                         midpoint=median(all_trim$avg_speed)) +
+  labs(title = "Line Plot: Average Speed per Storm Season",
+       x = "Year",
+       y = "Speed") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = temperature, color = temperature)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "yellow", mid = "orange" , high = "red",
+                         midpoint=median(all_trim$temperature)) +
+  labs(title = "Line Plot: Rise in Global Temperature Over the Years",
+       x = "Year",
+       y = "Temp (C)") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=n_storms)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Number of Storms",
+       x = "Temp (C)",
+       y = "Storms") +
+  geom_smooth(color = "darkblue") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=p_hurricane)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Proportion of Hurricanes",
+       x = "Temp (C)",
+       y = "Hurricane Proportion") +
+  geom_smooth(color = "darkviolet") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=avg_speed)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Storm Speed",
+       x = "Temp (C)",
+       y = "Speed") +
+  geom_smooth(color = "darkgrey") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Sources
+Storm Data:
+
+https://www.nhc.noaa.gov/data/#hurdat
+
+Climate Data:
+
+https://science.nasa.gov/earth/explore/earth-indicators/global-temperature/
