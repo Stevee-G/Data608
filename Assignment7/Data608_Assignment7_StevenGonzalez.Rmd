@@ -1,0 +1,59 @@
+---
+title: "DATA608 Assignment 7"
+author: "Steven Gonzalez"
+output: html_document
+---
+
+## Prompt
+The US Geological Survey publishes a list of Strategic Minerals (https://www.usgs.gov/news/national-news-release/us-geological-survey-releases-2022-list-critical-minerals ). Having a secure supply of these minerals is essential to our security and economic prosperity. However many of these minerals are sourced from outside of the US. This assignment is to develop a reference catalog of the source or sources of each of these minerals and a judgement on the reliability of each source under stressed circumstance (e.g. war, economic crisis, etc.).
+
+## R Packages
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(usmap)
+library(tinytex)
+library(paletteer)
+```
+
+## Data Import
+```{r message = FALSE, warning = FALSE}
+url <- ""
+url1 <- ""
+url2 <- ""
+
+minerals <- read_csv(url)
+allies <- read_csv(url1)
+competitors <- read_csv(url2)
+
+glimpse(minerals)
+glimpse(allies)
+glimpse(competitors)
+```
+
+## Data Wrangling
+```{r message = FALSE, warning = FALSE}
+
+```
+
+## Data Visualizations
+```{r message = FALSE, warning = FALSE}
+
+```
+
+## Sources
+Mineral Data:
+
+https://mrdata.usgs.gov/major-deposits/
+
+Ally Data:
+
+https://worldpopulationreview.com/country-rankings/united-states-allies
+
+Competitor Data:
+
+https://worldpopulationreview.com/country-rankings/us-enemy-countries
