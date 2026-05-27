@@ -22,9 +22,9 @@ library(paletteer)
 
 ## Data Import
 ```{r message = FALSE, warning = FALSE}
-url <- ""
-url1 <- ""
-url2 <- ""
+url <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/ofr20051294/deposit.csv"
+url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_allies.csv"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_rivals.csv"
 
 minerals <- read_csv(url)
 allies <- read_csv(url1)
@@ -37,6 +37,12 @@ glimpse(competitors)
 
 ## Data Wrangling
 ```{r message = FALSE, warning = FALSE}
+min_trim <- minerals %>% 
+  select(commodity, country,
+         latitude, longitude) %>% 
+  arrange(commodity, country)
+glimpse(min_trim)
+
 
 ```
 
