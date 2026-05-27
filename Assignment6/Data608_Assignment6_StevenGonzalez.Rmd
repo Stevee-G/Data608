@@ -17,6 +17,7 @@ library(ggplot2)
 library(reshape2)
 library(usmap)
 library(tinytex)
+library(paletteer)
 ```
 
 ## Data Import
@@ -24,155 +25,262 @@ library(tinytex)
 url <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-all-households-2024.csv"
 url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-child-trends-2024.csv"
 url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-educ-emp-dis-2024.csv"
-url3 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-hh-with-children-2024.csv"
-url4 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-state-2024.csv"
+url3 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-state-2024.csv"
+url4 <- "https://raw.githubusercontent.com/aruljohn/us-states/refs/heads/master/states.csv"
 
 all_hh <- read_csv(url)
 ct <- read_csv(url1)
 eed <- read_csv(url2)
-hh_wc <- read_csv(url3)
-state <- read_csv(url4)
+state <- read_csv(url3)
+state_abbr <- read_csv(url4)
 
 glimpse(all_hh)
 glimpse(ct)
 glimpse(eed)
-glimpse(hh_wc)
 glimpse(state)
+glimpse(state_abbr)
 ```
 
 ## Data Wrangling
 ```{r message = FALSE, warning = FALSE}
-atl_trim <- atlantic_df %>% 
-  mutate(year = format(as.Date(atlantic_df$date,
-                               format = "%Y%m%d"), "%Y")) %>%
-  arrange(desc(max_speed)) %>% 
-  distinct(track_id, .keep_all = TRUE) %>% 
-  arrange(year, track_id) %>% 
-  select(year, track_id, max_speed, status) %>% 
-  filter(year >= 1950)
-glimpse(atl_trim)
-
-pa_trim <- pacific_df %>% 
-  mutate(year = format(as.Date(pacific_df$date,
-                               format = "%Y%m%d"), "%Y")) %>%
-  arrange(desc(max_speed)) %>% 
-  distinct(track_id, .keep_all = TRUE) %>% 
-  arrange(year, track_id) %>% 
-  select(year, track_id, max_speed, status) %>% 
-  filter(year >= 1950)
-glimpse(pa_trim)
-
-storms <- bind_rows(atl_trim, pa_trim) %>% 
-  mutate(year = as.integer(year),
-         max_speed = as.integer(max_speed)) %>% 
-  arrange(year, track_id)
-glimpse(storms)
-
-temp_trim <- temp_df %>% 
-  mutate(temperature = smoothing) %>% 
-  filter(year >= 1950) %>% 
-  select(year, temperature)
-glimpse(temp_trim)
-
-all <- full_join(storms, temp_trim,
-                        join_by(year == year),
-                        relationship = "many-to-one")
-glimpse(all)
-
-all_trim <- all %>% 
-  group_by(year,temperature) %>% 
+hh_comp <- all_hh %>% 
+  filter(Category == "Household composition") %>% 
+  group_by(Subcategory) %>% 
   summarize(
-    n_storms = n(),
-    n_hurricane = sum(status == "HU"),
-    p_hurricane = round(n_hurricane/n_storms,2),
-    avg_speed = round(mean(max_speed),2)
+    `Food secure-percent` = round(mean(`Food secure-percent`),2),
+    `Food insecure-percent` = round(mean(`Food insecure-percent`),2),
+    `Low food security-percent` = round(mean(`Low food security-percent`),2),
+    `Very low food security-percent` = round(mean(`Very low food security-percent`),2)
+  ) %>% 
+  pivot_longer(
+    cols = c(`Food secure-percent`, `Food insecure-percent`,
+             `Low food security-percent`, `Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
   )
-glimpse(all_trim)
+glimpse(hh_comp)
+
+re_hh <- all_hh %>% 
+  filter(Category == "Race/ethnicity of households") %>% 
+  group_by(Subcategory) %>% 
+  summarize(
+    `Food secure-percent` = round(mean(`Food secure-percent`),2),
+    `Food insecure-percent` = round(mean(`Food insecure-percent`),2),
+    `Low food security-percent` = round(mean(`Low food security-percent`),2),
+    `Very low food security-percent` = round(mean(`Very low food security-percent`),2)
+  ) %>% 
+  pivot_longer(
+    cols = c(`Food secure-percent`, `Food insecure-percent`,
+             `Low food security-percent`, `Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(re_hh)
+
+ipr <- all_hh %>% 
+  filter(Category == "Household income-to-poverty ratio") %>% 
+  group_by(Subcategory) %>% 
+  summarize(
+    `Food secure-percent` = round(mean(`Food secure-percent`),2),
+    `Food insecure-percent` = round(mean(`Food insecure-percent`),2),
+    `Low food security-percent` = round(mean(`Low food security-percent`),2),
+    `Very low food security-percent` = round(mean(`Very low food security-percent`),2)
+  ) %>% 
+  pivot_longer(
+    cols = c(`Food secure-percent`, `Food insecure-percent`,
+             `Low food security-percent`, `Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(ipr)
+
+ar <- all_hh %>% 
+  filter(Category == "Area of residence") %>% 
+  group_by(Subcategory) %>% 
+  summarize(
+    `Food secure-percent` = round(mean(`Food secure-percent`),2),
+    `Food insecure-percent` = round(mean(`Food insecure-percent`),2),
+    `Low food security-percent` = round(mean(`Low food security-percent`),2),
+    `Very low food security-percent` = round(mean(`Very low food security-percent`),2)
+  ) %>% 
+  pivot_longer(
+    cols = c(`Food secure-percent`, `Food insecure-percent`,
+             `Low food security-percent`, `Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(ar)
+
+cgr <- all_hh %>% 
+  filter(Category == "Census geographic region") %>% 
+  group_by(Subcategory) %>% 
+  summarize(
+    `Food secure-percent` = round(mean(`Food secure-percent`),2),
+    `Food insecure-percent` = round(mean(`Food insecure-percent`),2),
+    `Low food security-percent` = round(mean(`Low food security-percent`),2),
+    `Very low food security-percent` = round(mean(`Very low food security-percent`),2)
+  ) %>% 
+  pivot_longer(
+    cols = c(`Food secure-percent`, `Food insecure-percent`,
+             `Low food security-percent`, `Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(cgr)
+
+ct_trim <- ct %>% 
+  select(Category, `Food-secure households-percent`,
+         `Food-insecure households-percent`,
+         `Households with food-insecure children-percent`,
+         `Households with very low food security among children-percent`) %>% 
+  pivot_longer(
+    cols = c(`Food-secure households-percent`, `Food-insecure households-percent`,
+             `Households with food-insecure children-percent`,
+             `Households with very low food security among children-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(ct_trim)
+
+emp <- eed %>% 
+  filter(Subcategory == 'Employment') %>% 
+  select(`Sub-subcategory`, `Food insecure-percent`,
+         `Very low food security-percent`) %>% 
+  pivot_longer(
+    cols = c(`Food insecure-percent`,`Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(emp)
+
+edu <- eed %>% 
+  filter(Subcategory == 'Education') %>% 
+  select(`Sub-subcategory`, `Food insecure-percent`,
+         `Very low food security-percent`) %>% 
+  pivot_longer(
+    cols = c(`Food insecure-percent`,`Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(edu)
+
+dis <- eed %>% 
+  filter(Subcategory == 'Disability status') %>% 
+  select(`Sub-subcategory`, `Food insecure-percent`,
+         `Very low food security-percent`) %>% 
+  pivot_longer(
+    cols = c(`Food insecure-percent`,`Very low food security-percent`),
+    names_to = "Food Security Type",
+    values_to = "Percent"
+  )
+glimpse(dis)
+
+state_trim <- inner_join(state, state_abbr,
+                        join_by(State == ABBREVIATION),
+                        relationship = "one-to-one") %>% 
+  select(NAME, `Food insecurity prevalence`,
+         `Very low food security prevalence`) %>% 
+  mutate(state = NAME)
+glimpse(state_trim)
 ```
 
 ## Data Visualizations
 ```{r message = FALSE, warning = FALSE}
-ggplot(all_trim, aes(x = year, y = n_storms, fill = n_storms)) +
-  geom_col() +
-  scale_fill_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
-                         midpoint=median(all_trim$n_storms)) +
-  labs(title = "Bar Plot: Storm Activity Since 1950",
-       x = "Year",
-       y = "") +
-  theme_minimal() +
-  theme(legend.position="none",
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(all_trim, aes(x = year, y = n_hurricane, fill = n_hurricane)) +
-  geom_col() +
-  scale_fill_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
-                         midpoint=median(all_trim$n_hurricane)) +
-  labs(title = "Bar Plot: Hurricane Activity",
-       x = "Year",
-       y = "") +
-  theme_minimal() +
-  theme(legend.position="none",
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(all_trim, aes(x = year, y = p_hurricane, color = p_hurricane)) +
-  geom_line(linewidth = 2) +
-  scale_colour_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
-                         midpoint=median(all_trim$p_hurricane)) +
-  labs(title = "Line Plot: Proportion of Hurricanes per Storm Season",
-       x = "Year",
-       y = "Proportion") +
-  theme_minimal() +
-  theme(legend.position="none",
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(all_trim, aes(x = year, y = avg_speed, color = avg_speed)) +
-  geom_line(linewidth = 2) +
-  scale_colour_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
-                         midpoint=median(all_trim$avg_speed)) +
-  labs(title = "Line Plot: Average Speed per Storm Season",
-       x = "Year",
-       y = "Speed") +
-  theme_minimal() +
-  theme(legend.position="none",
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(all_trim, aes(x = year, y = temperature, color = temperature)) +
-  geom_line(linewidth = 2) +
-  scale_colour_gradient2(low = "yellow", mid = "orange" , high = "red",
-                         midpoint=median(all_trim$temperature)) +
-  labs(title = "Line Plot: Rise in Global Temperature Over the Years",
-       x = "Year",
-       y = "Temp (C)") +
-  theme_minimal() +
-  theme(legend.position="none",
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(all_trim, aes(x=temperature, y=n_storms)) +
-  geom_point() +
-  labs(title = "Scatterplot: Temperature vs Number of Storms",
-       x = "Temp (C)",
-       y = "Storms") +
-  geom_smooth(color = "darkblue") +
-  theme_minimal() +
+plot_usmap(data = state_trim, values = "Food insecurity prevalence", color = "black") +
+  scale_fill_continuous(low = "whitesmoke",
+                        high = "darkorange",
+                        name = "Level of Prevalence",
+                        label = scales::comma) +
+  labs(title = "Heatmap: Food Insecurity Prevalence Across the States") +
+  theme(legend.position = "right") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggplot(all_trim, aes(x=temperature, y=p_hurricane)) +
-  geom_point() +
-  labs(title = "Scatterplot: Temperature vs Proportion of Hurricanes",
-       x = "Temp (C)",
-       y = "Hurricane Proportion") +
-  geom_smooth(color = "darkviolet") +
+plot_usmap(data = state_trim, values = "Very low food security prevalence", color = "black") +
+  scale_fill_continuous(low = "whitesmoke",
+                        high = "darkred",
+                        name = "Level of Prevalence",
+                        label = scales::comma) +
+  labs(title = "Heatmap: Very Low Food Security Prevalence Across the States") +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r message = FALSE, warning = FALSE, fig.dim = c(10,7)}
+ggplot(hh_comp, aes(x = Subcategory, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Household Composition") +
   theme_minimal() +
+  theme(legend.position = "right") +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggplot(all_trim, aes(x=temperature, y=avg_speed)) +
-  geom_point() +
-  labs(title = "Scatterplot: Temperature vs Storm Speed",
-       x = "Temp (C)",
-       y = "Speed") +
-  geom_smooth(color = "darkgrey") +
+ggplot(re_hh, aes(x = Subcategory, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Race/Ethnicity") +
   theme_minimal() +
+  theme(legend.position = "right") +
   theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(ipr, aes(x = Subcategory, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Income to Poverty Ratio") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(ar, aes(x = Subcategory, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Area of Residence") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(cgr, aes(x = Subcategory, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Census Geographic Region") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r message = FALSE, warning = FALSE, fig.dim = c(10,6)}
+ggplot(ct_trim, aes(x = Category, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Child Household") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+
+ggplot(emp, aes(x = `Sub-subcategory`, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Employment") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+
+ggplot(edu, aes(x = `Sub-subcategory`, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Education") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+
+ggplot(dis, aes(x = `Sub-subcategory`, y = Percent, fill = `Food Security Type`)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_d('ggsci::orange_material') +
+  labs(title = "Barplot: Food Security by Disability Status") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
 ```
 
 ## Sources
