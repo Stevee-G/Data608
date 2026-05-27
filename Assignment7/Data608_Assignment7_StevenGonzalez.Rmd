@@ -5,7 +5,7 @@ output: html_document
 ---
 
 ## Prompt
-The US Geological Survey publishes a list of Strategic Minerals (https://www.usgs.gov/news/national-news-release/us-geological-survey-releases-2022-list-critical-minerals ). Having a secure supply of these minerals is essential to our security and economic prosperity. However many of these minerals are sourced from outside of the US. This assignment is to develop a reference catalog of the source or sources of each of these minerals and a judgement on the reliability of each source under stressed circumstance (e.g. war, economic crisis, etc.).
+The US Geological Survey publishes a list of Strategic Minerals (https://www.usgs.gov/news/national-news-release/us-geological-survey-releases-2022-list-critical-minerals ). Having a secure supply of these minerals is essential to our security and economic prosperity. However, many of these minerals are sourced from outside of the US. This assignment is to develop a reference catalog of the source or sources of each of these minerals and a judgement on the reliability of each source under stressed circumstance (e.g. war, economic crisis, etc.).
 
 ## R Packages
 ```{r message = FALSE, warning = FALSE}
@@ -18,6 +18,7 @@ library(reshape2)
 library(usmap)
 library(tinytex)
 library(paletteer)
+library(gapminder)
 ```
 
 ## Data Import
@@ -65,19 +66,47 @@ all <- right_join(countries,
   arrange(commodity, Country)
 all$reliability <- all$reliability %>% 
   replace_na('Neutral')
+all$line_score <- case_when(
+  all$reliability == 'Ally' ~ 1,
+  all$reliability == 'Neutral' ~ 0,
+  all$reliability == 'Competitor' ~ -1
+)
 glimpse(all)
 
-scarcity <- all %>% 
+availability <- all %>% 
   group_by(commodity) %>% 
   summarize(
-    '# countries' = n()
+    '# countries' = n(),
+    access = sum(line_score)
   ) %>% 
-  ungroup() %>% 
-  arrange('# countries')
-glimpse(scarcity)
+  ungroup()
+glimpse(availability)
 ```
 
 ## Data Visualizations
+```{r message = FALSE, warning = FALSE}
+ggplot(availability, aes(reorder(commodity, `# countries`),
+                         `# countries`), fill = `# countries`) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_c('ggthemes::Blue-Green Sequential') +
+  labs(title = "Barplot: Number of Countries Mining Each Mineral",
+       x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+
+ggplot(availability, aes(reorder(commodity, access),
+                         access), fill = access) + 
+  geom_bar(stat = "identity") +
+  scale_fill_paletteer_c('ggthemes::Blue-Green Sequential') +
+  labs(title = "Barplot: Mineral Reliability",
+       x = "") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+```
 ```{r message = FALSE, warning = FALSE}
 
 ```
