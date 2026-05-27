@@ -23,7 +23,7 @@ library(tinytex)
 ```{r message = FALSE, warning = FALSE}
 url <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-02272026.txt"
 url1 <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-nepac-1949-2025-02272026.txt"
-url2 <- "https://data.giss.nasa.gov/gistemp/graphs/graph_data/Global_Mean_Estimates_based_on_Land_and_Ocean_Data/graph.txt"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment5/nasa_temps.csv"
 
 out_file <- "hurdat2_atlantic.txt"
 download.file(url, out_file, mode = "wb")
@@ -109,63 +109,142 @@ while (j <= length(raw1)) {
 pacific_df <- bind_rows(parsed1)
 head(pacific_df)
 
-out_file2 <- "nasa_temps.txt"
-download.file(url2, out_file2, mode = "wb")
-temp_df <- readLines(out_file2)
 temp_df <- read_csv(url2)
 glimpse(temp_df)
 ```
 
 ## Data Wrangling
 ```{r message = FALSE, warning = FALSE}
+atl_trim <- atlantic_df %>% 
+  mutate(year = format(as.Date(atlantic_df$date,
+                               format = "%Y%m%d"), "%Y")) %>%
+  arrange(desc(max_speed)) %>% 
+  distinct(track_id, .keep_all = TRUE) %>% 
+  arrange(year, track_id) %>% 
+  select(year, track_id, max_speed, status) %>% 
+  filter(year >= 1950)
+glimpse(atl_trim)
 
+pa_trim <- pacific_df %>% 
+  mutate(year = format(as.Date(pacific_df$date,
+                               format = "%Y%m%d"), "%Y")) %>%
+  arrange(desc(max_speed)) %>% 
+  distinct(track_id, .keep_all = TRUE) %>% 
+  arrange(year, track_id) %>% 
+  select(year, track_id, max_speed, status) %>% 
+  filter(year >= 1950)
+glimpse(pa_trim)
+
+storms <- bind_rows(atl_trim, pa_trim) %>% 
+  mutate(year = as.integer(year),
+         max_speed = as.integer(max_speed)) %>% 
+  arrange(year, track_id)
+glimpse(storms)
+
+temp_trim <- temp_df %>% 
+  mutate(temperature = smoothing) %>% 
+  filter(year >= 1950) %>% 
+  select(year, temperature)
+glimpse(temp_trim)
+
+all <- full_join(storms, temp_trim,
+                        join_by(year == year),
+                        relationship = "many-to-one")
+glimpse(all)
+
+all_trim <- all %>% 
+  group_by(year,temperature) %>% 
+  summarize(
+    n_storms = n(),
+    n_hurricane = sum(status == "HU"),
+    p_hurricane = round(n_hurricane/n_storms,2),
+    avg_speed = round(mean(max_speed),2)
+  )
+glimpse(all_trim)
 ```
 
 ## Data Visualizations
 ```{r message = FALSE, warning = FALSE}
-plot_usmap(data = state, values = "mean", color = "black") +
-  scale_fill_continuous(low = "whitesmoke",
-                        high = "darkblue",
-                        name = "Average Salary",
-                        label = scales::comma) +
-  labs(title = "Heatmap: Data Practitioner Salary Across the States") +
-  theme(legend.position = "right") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-```{r message = FALSE, warning = FALSE, fig.dim = c(5,10)}
-ggplot(state_long, aes(x = value, y = reorder(state, value, FUN = max))) +
-  geom_line() +
-  geom_point(aes(color = variable), size = 2) +
-  scale_color_brewer(palette = "Set1", direction = -1) +
-  labs(title = "Dumbbell Plot: Salary Range by State",
-       x = "",
+ggplot(all_trim, aes(x = year, y = n_storms, fill = n_storms)) +
+  geom_col() +
+  scale_fill_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
+                         midpoint=median(all_trim$n_storms)) +
+  labs(title = "Bar Plot: Storm Activity Since 1950",
+       x = "Year",
        y = "") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-```{r message = FALSE, warning = FALSE}
-ggplot(prof_long, aes(x = value, y = reorder(OCC_TITLE, value, FUN = max))) +
-  geom_line() +
-  geom_point(aes(color = variable), size = 2) +
-  scale_color_brewer(palette = "Set1", direction = -1) +
-  labs(title = "Dumbbell Plot: Salary Range by Profession",
-       x = "",
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = n_hurricane, fill = n_hurricane)) +
+  geom_col() +
+  scale_fill_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
+                         midpoint=median(all_trim$n_hurricane)) +
+  labs(title = "Bar Plot: Hurricane Activity",
+       x = "Year",
        y = "") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-```{r message = FALSE, warning = FALSE, fig.dim = c(10,6)}
-ggplot(field_long, aes(x = value, y = reorder(NAICS_TITLE, value, FUN = max))) +
-  geom_line() +
-  geom_point(aes(color = variable), size = 2) +
-  scale_color_brewer(palette = "Set1", direction = -1) +
-  labs(title = "Dumbbell Plot: Salary Range by Industry",
-       x = "",
-       y = "") +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = p_hurricane, color = p_hurricane)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "violet", mid = "darkviolet" , high = "darkblue",
+                         midpoint=median(all_trim$p_hurricane)) +
+  labs(title = "Line Plot: Proportion of Hurricanes per Storm Season",
+       x = "Year",
+       y = "Proportion") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = avg_speed, color = avg_speed)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "whitesmoke", mid = "darkgrey" , high = "darkblue",
+                         midpoint=median(all_trim$avg_speed)) +
+  labs(title = "Line Plot: Average Speed per Storm Season",
+       x = "Year",
+       y = "Speed") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x = year, y = temperature, color = temperature)) +
+  geom_line(linewidth = 2) +
+  scale_colour_gradient2(low = "yellow", mid = "orange" , high = "red",
+                         midpoint=median(all_trim$temperature)) +
+  labs(title = "Line Plot: Rise in Global Temperature Over the Years",
+       x = "Year",
+       y = "Temp (C)") +
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=n_storms)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Number of Storms",
+       x = "Temp (C)",
+       y = "Storms") +
+  geom_smooth(color = "darkblue") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=p_hurricane)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Proportion of Hurricanes",
+       x = "Temp (C)",
+       y = "Hurricane Proportion") +
+  geom_smooth(color = "darkviolet") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(all_trim, aes(x=temperature, y=avg_speed)) +
+  geom_point() +
+  labs(title = "Scatterplot: Temperature vs Storm Speed",
+       x = "Temp (C)",
+       y = "Speed") +
+  geom_smooth(color = "darkgrey") +
+  theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
