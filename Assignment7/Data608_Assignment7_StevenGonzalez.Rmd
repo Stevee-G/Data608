@@ -22,14 +22,17 @@ library(paletteer)
 
 ## Data Import
 ```{r message = FALSE, warning = FALSE}
-url <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/ofr20051294/deposit.csv"
-url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_allies.csv"
-url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_rivals.csv"
+url <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/min_list.csv"
+url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/ofr20051294/deposit.csv"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_allies.csv"
+url3 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment7/us_rivals.csv"
 
-minerals <- read_csv(url)
-allies <- read_csv(url1)
-competitors <- read_csv(url2)
+min_list <- read_csv(url)
+minerals <- read_csv(url1)
+allies <- read_csv(url2)
+competitors <- read_csv(url3)
 
+glimpse(min_list)
 glimpse(minerals)
 glimpse(allies)
 glimpse(competitors)
@@ -43,7 +46,35 @@ min_trim <- minerals %>%
   arrange(commodity, country)
 glimpse(min_trim)
 
+countries <- bind_rows(allies, competitors)
+countries$reliability <- case_when(
+  countries$Status == 'Ally' ~ 'Ally',
+  countries$Status == 'Former enemy' ~ 'Neutral',
+  countries$Status == 'Enemy' ~ 'Competitor'
+  )
+countries <- countries %>% 
+  select(Country, reliability)
+glimpse(countries)
 
+all <- right_join(countries,
+                  inner_join(min_trim,
+                             min_list,join_by(commodity == Mineral),
+                             relationship = 'many-to-one'),
+                  join_by(Country == country),
+                  relationship = 'one-to-many') %>% 
+  arrange(commodity, Country)
+all$reliability <- all$reliability %>% 
+  replace_na('Neutral')
+glimpse(all)
+
+scarcity <- all %>% 
+  group_by(commodity) %>% 
+  summarize(
+    '# countries' = n()
+  ) %>% 
+  ungroup() %>% 
+  arrange('# countries')
+glimpse(scarcity)
 ```
 
 ## Data Visualizations
@@ -52,6 +83,10 @@ glimpse(min_trim)
 ```
 
 ## Sources
+Mineral List:
+
+https://www.usgs.gov/news/national-news-release/us-geological-survey-releases-2022-list-critical-minerals
+
 Mineral Data:
 
 https://mrdata.usgs.gov/major-deposits/
