@@ -21,96 +21,23 @@ library(tinytex)
 
 ## Data Import
 ```{r message = FALSE, warning = FALSE}
-url <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2025-02272026.txt"
-url1 <- "https://www.nhc.noaa.gov/data/hurdat/hurdat2-nepac-1949-2025-02272026.txt"
-url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment5/nasa_temps.csv"
+url <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-all-households-2024.csv"
+url1 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-child-trends-2024.csv"
+url2 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-educ-emp-dis-2024.csv"
+url3 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-hh-with-children-2024.csv"
+url4 <- "https://raw.githubusercontent.com/Stevee-G/Data608/refs/heads/main/Assignment6/foodsecurity_csv_datafiles/foodsecurity-state-2024.csv"
 
-out_file <- "hurdat2_atlantic.txt"
-download.file(url, out_file, mode = "wb")
-raw <- readLines(out_file)
+all_hh <- read_csv(url)
+ct <- read_csv(url1)
+eed <- read_csv(url2)
+hh_wc <- read_csv(url3)
+state <- read_csv(url4)
 
-parsed <- list()
-i <- 1
-while (i <= length(raw)) {
-  header <- trimws(strsplit(raw[i], ",")[[1]])
-  track_id <- header[1]
-  track_name <- header[2]
-  rows <- as.numeric(header[3])
-
-  body <- raw[(i + 1):(i + rows)]
-  body <- strsplit(body, ",")
-  body <- lapply(body, trimws)
-  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
-  body <- do.call(rbind, body)
-
-  colnames(body) <- c(
-    "date","time","record","status","lat","lon","max_speed","min_press",
-    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
-    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
-    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
-  )
-
-  body <- as_tibble(body)
-  body$lat <- ifelse(grepl("N", body$lat),
-                     gsub("N","", body$lat),
-                     paste0("-", gsub("S","", body$lat)))
-  body$lon <- ifelse(grepl("E", body$lon),
-                     gsub("E","", body$lon),
-                     paste0("-", gsub("W","", body$lon)))
-
-  parsed[[length(parsed) + 1]] <-
-    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
-
-  i <- i + rows + 1
-}
-
-atlantic_df <- bind_rows(parsed)
-head(atlantic_df)
-
-out_file1 <- "hurdat2_pacific.txt"
-download.file(url1, out_file1, mode = "wb")
-raw1 <- readLines(out_file1)
-
-parsed1 <- list()
-j <- 1
-while (j <= length(raw1)) {
-  header <- trimws(strsplit(raw1[j], ",")[[1]])
-  track_id <- header[1]
-  track_name <- header[2]
-  rows <- as.numeric(header[3])
-
-  body <- raw1[(j + 1):(j + rows)]
-  body <- strsplit(body, ",")
-  body <- lapply(body, trimws)
-  body <- lapply(body, function(x) x[1:20])  # keep first 20 fields
-  body <- do.call(rbind, body)
-
-  colnames(body) <- c(
-    "date","time","record","status","lat","lon","max_speed","min_press",
-    "34kt_ne","34kt_se","34kt_sw","34kt_nw",
-    "50kt_ne","50kt_se","50kt_sw","50kt_nw",
-    "64kt_ne","64kt_se","64kt_sw","64kt_nw"
-  )
-
-  body <- as_tibble(body)
-  body$lat <- ifelse(grepl("N", body$lat),
-                     gsub("N","", body$lat),
-                     paste0("-", gsub("S","", body$lat)))
-  body$lon <- ifelse(grepl("E", body$lon),
-                     gsub("E","", body$lon),
-                     paste0("-", gsub("W","", body$lon)))
-
-  parsed1[[length(parsed1) + 1]] <-
-    bind_cols(tibble(track_id = track_id, track_name = track_name), body)
-
-  j <- j + rows + 1
-}
-
-pacific_df <- bind_rows(parsed1)
-head(pacific_df)
-
-temp_df <- read_csv(url2)
-glimpse(temp_df)
+glimpse(all_hh)
+glimpse(ct)
+glimpse(eed)
+glimpse(hh_wc)
+glimpse(state)
 ```
 
 ## Data Wrangling
@@ -249,10 +176,6 @@ ggplot(all_trim, aes(x=temperature, y=avg_speed)) +
 ```
 
 ## Sources
-Storm Data:
+Food Insecurity Data:
 
-https://www.nhc.noaa.gov/data/#hurdat
-
-Climate Data:
-
-https://science.nasa.gov/earth/explore/earth-indicators/global-temperature/
+https://www.ers.usda.gov/topics/food-nutrition-assistance/food-security-in-the-us/interactive-charts-and-highlights#States
